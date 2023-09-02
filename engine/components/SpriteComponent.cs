@@ -9,4 +9,5 @@ public class SpriteComponent : IComponent
     public Vector2 Position { get; set; } = new(0, 0);
     public Texture2D Texture { get; set; } = null!;
     public string TextureName { get; set; } = "sprites/missing";
+    public bool Visible { get; set; } = true;
 }

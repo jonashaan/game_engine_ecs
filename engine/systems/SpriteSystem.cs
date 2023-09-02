@@ -29,7 +29,8 @@ public class SpriteSystem : ILoadableSystem, IDrawingSystem
             if (!entity.HasComponent<SpriteComponent>()) continue;
             var component = entity.GetComponent<SpriteComponent>();
             SpriteBatch.Begin();
-            SpriteBatch.Draw(texture: component.Texture, position: component.Position, color: Color.White);
+            if (component.Visible)
+                SpriteBatch.Draw(texture: component.Texture, position: component.Position, color: Color.White);
             SpriteBatch.End();
         }
     }
