@@ -9,11 +9,13 @@ using Microsoft.Xna.Framework.Input;
 
 namespace engine;
 
+// TODO: game / window config (fps, ...)
+
 public class TestGame : Microsoft.Xna.Framework.Game
 {
     private GraphicsDeviceManager _graphics;
-    public List<IEntity> Entities = new();
-    public List<ISystem> Systems = new();
+    public List<IEntity> WorldEntities = new();
+    public List<ISystem> WorldSystems = new();
 
     public TestGame()
     {
@@ -24,28 +26,33 @@ public class TestGame : Microsoft.Xna.Framework.Game
 
     protected override void Initialize()
     {
-        Systems.Add(new InputSystem());
-        Systems.Add(new SpriteSystem());
-        
-        Entities.Add(new TestEntity(
-            new InputComponent(),
+        var testEntity = new TestEntity(
             new SpriteComponent()
             {
-                TextureName = "sprites/ball"
-            }
-            )
+                TextureName = "sprites/ball",
+                Position = new Vector2(100, 100),
+                Visible = true
+            },
+            new InputComponent()
         );
+        var testScene = new SceneEntity(name: "TestScene", visible: true);
+        testScene.GetComponent<SceneComponent>().Entities.Add(testEntity);
+        testScene.GetComponent<SceneComponent>().Systems.Add(new InputSystem());
         
+        WorldEntities.Add(testScene);
+        WorldSystems.Add(new SceneSystem());
+        
+
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
-        foreach (var system in Systems)
+        foreach (var system in WorldSystems)
         {
             if (system is ILoadableSystem loadableSystem)
             {
-                loadableSystem.LoadContent(Entities, Content, GraphicsDevice);
+                loadableSystem.LoadContent(WorldEntities, Content, GraphicsDevice);
             }
         }
        
@@ -57,11 +64,11 @@ public class TestGame : Microsoft.Xna.Framework.Game
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
         
-        foreach (var system in Systems)
+        foreach (var system in WorldSystems)
         {
             if (system is IUpdateSystem updateSystem)
             {
-                updateSystem.Update(Entities);
+                updateSystem.Update(WorldEntities);
             }
         }
         
@@ -70,13 +77,12 @@ public class TestGame : Microsoft.Xna.Framework.Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
-
-        foreach (var system in Systems)
+        GraphicsDevice.Clear(Color.Black);
+        foreach (var system in WorldSystems)
         {
             if (system is IDrawingSystem drawingSystem)
             {
-                drawingSystem.Draw(Entities);
+                drawingSystem.Draw(WorldEntities);
             }
         }
 
